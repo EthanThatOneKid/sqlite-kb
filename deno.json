@@ -1,0 +1,15 @@
+{
+  "tasks": {
+    "start": "deno -A --env main.ts",
+    "fmt": "deno fmt --unstable-sql",
+    "check": "deno check --unstable-raw-imports",
+    "precommit": {
+      "description": "Formats and checks code",
+      "dependencies": ["fmt", "check"]
+    }
+  },
+  "imports": {
+    "@google/genai": "npm:@google/genai@^1.33.0",
+    "@libsql/client": "npm:@libsql/client@^0.15.15"
+  }
+}
