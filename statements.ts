@@ -7,6 +7,7 @@ export async function createStatementsTable(
   await db.executeMultiple(statementsSql);
 }
 
+// TODO: Replace with @rdfjs/types types.
 export interface RDFStatement {
   subject: string;
   predicate: string;
@@ -43,7 +44,7 @@ export async function insertStatement(
   }
 
   const sql = `
-    INSERT INTO kb_statements (subject, predicate, object, context, term_type, obj_language, obj_datatype)
+    INSERT INTO kb_statements (subject, predicate, object, context, term_type, object_language, object_datatype)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT DO NOTHING
   `;
@@ -92,8 +93,8 @@ export async function selectStatements(
     predicate: row.predicate as string,
     object: row.object as string,
     context: row.context as string,
-    language: row.obj_language as string,
-    datatype: row.obj_datatype as string,
+    language: row.object_language as string,
+    datatype: row.object_datatype as string,
     termType: row.term_type as RDFStatement["termType"],
   }));
 }

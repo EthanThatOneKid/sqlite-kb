@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS kb_statements (
   -- The type of the object (NamedNode, BlankNode, Literal, etc.)
   term_type TEXT NOT NULL DEFAULT 'NamedNode',
   -- Metadata for Literals.
-  obj_language TEXT NOT NULL DEFAULT '',
-  obj_datatype TEXT NOT NULL DEFAULT '',
+  object_language TEXT NOT NULL DEFAULT '',
+  object_datatype TEXT NOT NULL DEFAULT '',
   -- One constraint to rule them all:
   CONSTRAINT kb_statement_unique UNIQUE (
     subject,
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS kb_statements (
     object,
     context,
     term_type,
-    obj_language,
-    obj_datatype
+    object_language,
+    object_datatype
   )
 );
 
