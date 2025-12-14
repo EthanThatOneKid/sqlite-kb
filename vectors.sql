@@ -37,3 +37,55 @@ CREATE TABLE IF NOT EXISTS chunks (
 
 -- 5. Create a vector index on the embedding column
 CREATE INDEX IF NOT EXISTS chunks_vector_idx ON chunks (libsql_vector_idx(embedding));
+
+-- 6. FTS5 Virtual Table for Full-Text Search
+-- using 'external content' to save space (content is stored in 'chunks')
+CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(
+  content,
+  content = 'chunks',
+  content_rowid = 'chunk_id'
+);
+
+-- 7. Triggers to keep FTS index in sync with main chunks table
+-- Trigger on INSERT
+CREATE TRIGGER IF NOT EXISTS chunks_ai
+AFTER
+INSERT
+  ON chunks
+BEGIN
+INSERT INTO
+  chunks_fts(rowid, content)
+VALUES
+  (new.chunk_id, new.content);
+
+END;
+
+-- Trigger on DELETE
+CREATE TRIGGER IF NOT EXISTS chunks_ad
+AFTER
+  DELETE ON chunks
+BEGIN
+INSERT INTO
+  chunks_fts(chunks_fts, rowid, content)
+VALUES
+  ('delete', old.chunk_id, old.content);
+
+END;
+
+-- Trigger on UPDATE
+CREATE TRIGGER IF NOT EXISTS chunks_au
+AFTER
+UPDATE
+  ON chunks
+BEGIN
+INSERT INTO
+  chunks_fts(chunks_fts, rowid, content)
+VALUES
+  ('delete', old.chunk_id, old.content);
+
+INSERT INTO
+  chunks_fts(rowid, content)
+VALUES
+  (new.chunk_id, new.content);
+
+END;

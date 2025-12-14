@@ -84,30 +84,41 @@ export async function searchFTS(
   query: string,
   limit: number = 10,
 ): Promise<SearchResult[]> {
-  // Assuming we might want to use a simple LIKE or if we have FTS enabled.
-  // For now, let's use a LIKE for simplicity unless FTS5 is explicitly set up,
-  // but strictly speaking "Hybrid Search" implies FTS.
-  // Let's do a simple content search for this pass since FTS virtual table wasn't in strict schema.
-  // TODO: Upgrade to real FTS5 table if high performance text search is needed.
+  // Use FTS5 MATCH query.
+  // We select from chunks_fts but also need doc_id from main chunks table if we want it,
+  // or we can select from chunks JOIN chunks_fts.
+  // Actually simpler: select rowid from chunks_fts match ? order by rank.
+  // But we need doc_id.
 
   const sql = `
-    SELECT chunk_id, doc_id, content 
-    FROM chunks 
-    WHERE content LIKE ? 
+    SELECT 
+      fts.rowid as chunk_id, 
+      c.doc_id, 
+      fts.content,
+      fts.rank
+    FROM chunks_fts fts
+    JOIN chunks c ON fts.rowid = c.chunk_id
+    WHERE fts.content MATCH ?
+    ORDER BY fts.rank
     LIMIT ?
   `;
 
   const result = await db.execute({
     sql,
-    args: [`%${query}%`, limit],
+    args: [query, limit],
   });
 
-  // Basic "score" of 1.0 for matches since LIKE doesn't rank well
   return result.rows.map((row) => ({
     chunk_id: Number(row.chunk_id),
     doc_id: Number(row.doc_id),
     content: String(row.content),
     embedding: [],
+    // FTS rank is "smaller is better" (more relevant).
+    // RRF expects just a ranking, so the raw rank value is useful for sorting,
+    // but for our internal 'score' attribute (which is usually similarity 0..1),
+    // we don't have a direct equivalent.
+    // We'll store the 'rank' in a way we can sort by it later, or just return it.
+    // Let's just mock score as 1.0 for now, RRF relies on list position.
     score: 1.0,
   }));
 }

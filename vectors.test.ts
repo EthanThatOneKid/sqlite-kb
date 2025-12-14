@@ -44,17 +44,30 @@ Deno.test("Hybrid Search Verification", async (t) => {
 
   await t.step("Perform Hybrid Search", async () => {
     const queryVector = new Array(1536).fill(0.1);
-    const queryText = "intelligence";
+    const queryText = "intelligence"; // Match via FTS
+
+    // Insert a third chunk that matches text but has very different vector to test FTS contribution
+    const distinctVector = new Array(1536).fill(0.9);
+    await insertChunk(
+      db,
+      docId,
+      "intelligence requires thinking",
+      distinctVector,
+    );
 
     const results = await performHybridSearch(db, queryText, queryVector, 5);
     console.log("Search Results:", results);
 
-    // We expect the first chunk to rank higher because:
-    // 1. Text match "intelligence" matches "artificial intelligence chunk"
-    // 2. Vector match (0.1 vs 0.1) is closer than (0.1 vs 0.9)
+    // "artificial intelligence chunk": Matches Text + Close Vector (Best)
+    // "intelligence requires thinking": Matches Text + Far Vector (Middle via RRF?)
+    // "bananas and fruit": No Text + Far Vector (Worst)
 
-    assertEquals(results.length > 0, true);
+    assertEquals(results.length >= 2, true);
     assertEquals(results[0].content, "artificial intelligence chunk");
+
+    // Ensure the FTS-only match (with far vector) appears
+    const foundFtsMatch = results.some((r) => r.content.includes("thinking"));
+    assertEquals(foundFtsMatch, true);
   });
 
   db.close();
