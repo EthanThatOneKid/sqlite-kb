@@ -4,7 +4,7 @@ import {
   insertStatement,
   selectStatements,
 } from "./statements.ts";
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 
 Deno.test("Statements Verification", async (t) => {
   const db = createClient({

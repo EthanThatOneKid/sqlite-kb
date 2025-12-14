@@ -3,7 +3,7 @@ import {
   createStatementsTable,
   insertStatement,
   selectStatements,
-} from "./statements.ts";
+} from "./tables/statements/statements.ts";
 
 async function main() {
   // Use in-memory database for testing
