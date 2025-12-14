@@ -1,9 +1,9 @@
-import "@tensorflow/tfjs-backend-cpu";
+import "@tensorflow/tfjs-backend-wasm";
 import * as tf from "@tensorflow/tfjs";
 import * as use from "@tensorflow-models/universal-sentence-encoder";
 
 // Initialize backend immediately
-await tf.setBackend("cpu");
+await tf.setBackend("wasm");
 
 let model: use.UniversalSentenceEncoder | null = null;
 

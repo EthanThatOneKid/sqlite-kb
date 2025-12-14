@@ -32,3 +32,16 @@ to perform RRF:
    ranks: `sum(1.0 / (k + rank))`.
 4. **Final Select**: Join with `kb_statements` to return specific knowledge
    graph nodes.
+
+## TensorFlow.js embeddings benchmark results
+
+```
+| benchmark                       | time/iter (avg) |        iter/s |      (min … max)      |      p75 |      p99 |     p995 |
+| ------------------------------- | --------------- | ------------- | --------------------- | -------- | -------- | -------- |
+| TensorFlow USE - CPU Backend    |        250.5 ms |           4.0 | (225.1 ms … 292.4 ms) | 261.3 ms | 292.4 ms | 292.4 ms |
+| TensorFlow USE - WASM Backend   |         20.0 ms |          50.1 | ( 16.3 ms …  32.8 ms) |  21.6 ms |  32.8 ms |  32.8 ms |
+```
+
+---
+
+Built with 🧪 [**@FartLabs**](https://github.com/FartLabs)

@@ -1,8 +1,8 @@
 import { createClient } from "@libsql/client";
+import { RDFStatement } from "#/tables/statements/statements.ts";
 import chunksSql from "./chunks.sql" with {
   type: "text",
 };
-import { RDFStatement } from "../statements/statements.ts";
 
 export interface Chunk {
   chunk_id: number;

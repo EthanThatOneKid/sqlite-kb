@@ -1,3 +1,4 @@
+import { assertEquals } from "@std/assert";
 import { createClient } from "@libsql/client";
 import {
   createChunksTable,
@@ -7,9 +8,8 @@ import {
 import {
   createStatementsTable,
   insertStatement,
-} from "../statements/statements.ts";
-import { generateEmbedding } from "../../embeddings.ts";
-import { assertEquals } from "@std/assert";
+} from "#/tables/statements/statements.ts";
+import { generateEmbedding } from "#/lib/embeddings.ts";
 
 Deno.test("Hybrid Search Verification with USE", async (t) => {
   // Use in-memory DB for testing
