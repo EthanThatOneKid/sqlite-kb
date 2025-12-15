@@ -13,6 +13,7 @@ async function getModel() {
     model = await use.load();
     console.log("Model loaded.");
   }
+
   return model;
 }
 
@@ -20,6 +21,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   const m = await getModel();
   const tensor = await m.embed(text);
   const data = await tensor.data();
+
   // Clean up tensor memory
   tensor.dispose();
 

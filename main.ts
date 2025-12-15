@@ -1,10 +1,10 @@
 import { createClient } from "@libsql/client";
 import {
+  createChunksTable,
   createStatementsTable,
+  insertStatementWithChunks,
   selectStatements,
-} from "./tables/statements/statements.ts";
-import { createChunksTable } from "./tables/chunks/chunks.ts";
-import { insertStatementWithChunks } from "./lib/kb.ts";
+} from "#/kb/sqlite/kb.ts";
 
 async function main() {
   // Use in-memory database for testing

@@ -1,8 +1,10 @@
 import { assertEquals } from "@std/assert";
 import { createClient } from "@libsql/client";
-import { createStatementsTable } from "#/tables/statements/statements.ts";
-import { createChunksTable } from "#/tables/chunks/chunks.ts";
-import { insertStatementWithChunks } from "./kb.ts";
+import {
+  createChunksTable,
+  createStatementsTable,
+  insertStatementWithChunks,
+} from "./kb.ts";
 
 Deno.test("Unified KB Helper Verification", async (t) => {
   const db = createClient({

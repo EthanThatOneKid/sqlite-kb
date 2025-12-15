@@ -1,9 +1,9 @@
 import { createClient } from "@libsql/client";
-import {
-  insertStatement,
-  RDFStatement,
-} from "#/tables/statements/statements.ts";
-import { insertChunksForStatement } from "#/tables/chunks/chunks.ts";
+import { insertStatement, RDFStatement } from "./statements.ts";
+import { insertChunksForStatement } from "./chunks.ts";
+
+export * from "./statements.ts";
+export * from "./chunks.ts";
 
 /**
  * Inserts a statement and automatically generates/inserts its chunks.
