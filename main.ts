@@ -8,7 +8,7 @@ import { insertStatementWithChunks } from "./lib/kb.ts";
 
 async function main() {
   // Use in-memory database for testing
-  const db = createClient({ url: ":memory:" });
+  const db = createClient({ url: "file::memory:?cache=shared" });
 
   console.log("Initializing database...");
   await createStatementsTable(db);

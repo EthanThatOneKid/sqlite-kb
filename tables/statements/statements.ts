@@ -1,8 +1,10 @@
-import { createClient } from "@libsql/client";
+import { Client, createClient, Transaction } from "@libsql/client";
 import statementsSql from "./statements.sql" with { type: "text" };
 
+export type SqlExecutor = Client | Transaction;
+
 export async function createStatementsTable(
-  db: ReturnType<typeof createClient>,
+  db: SqlExecutor,
 ) {
   await db.executeMultiple(statementsSql);
 }
@@ -19,7 +21,7 @@ export interface RDFStatement {
 }
 
 export async function insertStatement(
-  db: ReturnType<typeof createClient>,
+  db: SqlExecutor,
   stmt: RDFStatement,
 ): Promise<number> {
   let {

@@ -15,11 +15,18 @@ export async function insertStatementWithChunks(
   db: ReturnType<typeof createClient>,
   stmt: RDFStatement,
 ): Promise<number> {
-  // 1. Insert Statement (or get existing ID)
-  const id = await insertStatement(db, stmt);
+  const tx = await db.transaction("write");
+  try {
+    // 1. Insert Statement (or get existing ID)
+    const id = await insertStatement(tx, stmt);
 
-  // 2. Insert Chunks linked to that ID
-  await insertChunksForStatement(db, id, stmt);
+    // 2. Insert Chunks linked to that ID
+    await insertChunksForStatement(tx, id, stmt);
 
-  return id;
+    await tx.commit();
+    return id;
+  } catch (e) {
+    tx.close();
+    throw e;
+  }
 }

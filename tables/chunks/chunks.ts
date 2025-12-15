@@ -1,5 +1,5 @@
 import { createClient } from "@libsql/client";
-import { RDFStatement } from "#/tables/statements/statements.ts";
+import { RDFStatement, SqlExecutor } from "#/tables/statements/statements.ts";
 import chunksSql from "./chunks.sql" with {
   type: "text",
 };
@@ -26,7 +26,7 @@ export function chunkStatement(stmt: RDFStatement): string[] {
 }
 
 export async function insertChunksForStatement(
-  db: ReturnType<typeof createClient>,
+  db: SqlExecutor,
   statementId: number,
   stmt: RDFStatement,
 ) {
@@ -46,7 +46,7 @@ export async function createChunksTable(db: ReturnType<typeof createClient>) {
 // NOTE: This assumes the chunks are already generated and processed by a worker.
 // This function strictly inserts the chunk data.
 export async function insertChunk(
-  db: ReturnType<typeof createClient>,
+  db: SqlExecutor,
   statementId: number,
   content: string,
   embedding: number[],
