@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "start": "deno -A --env main.ts",
+    "start": "deno -A --env --unstable-raw-imports main.ts",
     "fmt": "deno fmt --unstable-sql",
     "check": "deno check --unstable-raw-imports",
     "test": "deno test -A --unstable-raw-imports",

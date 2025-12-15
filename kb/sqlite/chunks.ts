@@ -1,4 +1,5 @@
 import { createClient } from "@libsql/client";
+import { generateEmbedding } from "#/kb/embeddings.ts";
 import { RDFStatement, SqlExecutor } from "./statements.ts";
 import chunksSql from "./chunks.sql" with { type: "text" };
 
@@ -30,9 +31,8 @@ export async function insertChunksForStatement(
 ) {
   const chunks = chunkStatement(stmt);
   for (const content of chunks) {
-    // Generate zero-vector placeholder embedding
-    // In a real app, you'd call an embedding API here.
-    const embedding = new Array(512).fill(0);
+    // Generate real embedding
+    const embedding = await generateEmbedding(content);
     await insertChunk(db, statementId, content, embedding);
   }
 }

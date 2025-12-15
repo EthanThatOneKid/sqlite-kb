@@ -3,8 +3,10 @@ import {
   createChunksTable,
   createStatementsTable,
   insertStatementWithChunks,
+  performHybridSearch,
   selectStatements,
 } from "#/kb/sqlite/kb.ts";
+import { generateEmbedding } from "#/kb/embeddings.ts";
 
 async function main() {
   // Use in-memory database for testing
@@ -108,6 +110,65 @@ async function main() {
       `FAILURE: Found ${remainingChunks.rows.length} orphaned chunks.`,
     );
   }
+
+  // 5. Hybrid Search Demo
+  console.log("\n--- Hybrid Search Demo ---");
+
+  // Insert some AI/Knowledge Graph related statements
+  console.log("Inserting AI-related statements...");
+  await insertStatementWithChunks(db, {
+    subject: "http://example.org/kb",
+    predicate: "http://example.org/topic",
+    object: "Knowledge Graphs",
+    context: "tech",
+  });
+  await insertStatementWithChunks(db, {
+    subject: "http://example.org/ai",
+    predicate: "http://example.org/description",
+    object: "Artificial Intelligence transforms data into knowledge.",
+    context: "tech",
+  });
+
+  const query = "knowledge transformation";
+  console.log(`\nSearching for: "${query}"`);
+
+  const queryVector = await generateEmbedding(query);
+  const results = await performHybridSearch(db, query, queryVector, 5);
+
+  console.log("Search Results:");
+  results.forEach((r, i) => {
+    console.log(
+      `[${i + 1}] Score: ${r.score.toFixed(4)} | Content: ${r.object}`,
+    );
+  });
+
+  // 6. Debugging Accuracy
+  console.log("\n--- Debugging: why is Alice #1? ---");
+  const vecAlice = await generateEmbedding("Alice");
+  const vecQuery = await generateEmbedding("knowledge transformation");
+
+  // Simple Cosine Sim
+  const dot = (a: number[], b: number[]) =>
+    a.reduce((sum, v, k) => sum + v * b[k], 0);
+  console.log(
+    "Dot Product (Alice vs Query):",
+    dot(vecAlice, vecQuery).toFixed(4),
+  );
+
+  const vecAI = await generateEmbedding(
+    "Artificial Intelligence transforms data into knowledge.",
+  );
+  console.log("Dot Product (AI vs Query):   ", dot(vecAI, vecQuery).toFixed(4));
+
+  console.log("\n--- Trying Keyword Match 'transforms' ---");
+  const query2 = "transforms";
+  const vecQuery2 = await generateEmbedding(query2);
+  const results2 = await performHybridSearch(db, query2, vecQuery2, 5);
+  results2.forEach((r, i) => {
+    console.log(
+      `[${i + 1}] Score: ${r.score.toFixed(4)} | Content: ${r.object}`,
+    );
+  });
 }
 
 main().catch(console.error);
