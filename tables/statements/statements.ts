@@ -21,7 +21,7 @@ export interface RDFStatement {
 export async function insertStatement(
   db: ReturnType<typeof createClient>,
   stmt: RDFStatement,
-) {
+): Promise<number> {
   let {
     subject,
     predicate,
@@ -43,16 +43,48 @@ export async function insertStatement(
     predicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
   }
 
-  const sql = `
+  // Try insert and return ID
+  const insertSql = `
     INSERT INTO kb_statements (subject, predicate, object, context, term_type, object_language, object_datatype)
     VALUES (?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT DO NOTHING
+    RETURNING id
   `;
 
-  await db.execute({
-    sql,
+  const insertResult = await db.execute({
+    sql: insertSql,
     args: [subject, predicate, object, context, termType, language, datatype],
   });
+
+  if (insertResult.rows.length > 0) {
+    return insertResult.rows[0].id as number;
+  }
+
+  // If we are here, it means ON CONFLICT happened. We fetch the existing ID.
+  // We match on the UNIQUE constraint fields.
+  const selectSql = `
+    SELECT id FROM kb_statements
+    WHERE subject = ?
+      AND predicate = ?
+      AND object = ?
+      AND context = ?
+      AND term_type = ?
+      AND object_language = ?
+      AND object_datatype = ?
+  `;
+
+  const selectResult = await db.execute({
+    sql: selectSql,
+    args: [subject, predicate, object, context, termType, language, datatype],
+  });
+
+  if (selectResult.rows.length === 0) {
+    throw new Error(
+      "Failed to insert statement and failed to retrieve existing ID.",
+    );
+  }
+
+  return selectResult.rows[0].id as number;
 }
 
 export async function selectStatements(

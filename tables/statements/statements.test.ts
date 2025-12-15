@@ -16,12 +16,14 @@ Deno.test("Statements Verification", async (t) => {
   });
 
   await t.step("Insert Statement", async () => {
-    await insertStatement(db, {
+    const id = await insertStatement(db, {
       subject: "http://example.org/s1",
       predicate: "http://example.org/p1",
       object: "http://example.org/o1",
       context: "http://example.org/c1",
     });
+    assertEquals(typeof id, "number");
+    console.log(`Inserted statement with ID: ${id}`);
   });
 
   await t.step("Select Statement", async () => {

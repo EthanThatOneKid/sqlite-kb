@@ -15,6 +15,30 @@ export interface SearchResult extends RDFStatement {
   score: number;
 }
 
+export function chunkStatement(stmt: RDFStatement): string[] {
+  if (stmt.termType === "Literal") {
+    // Basic chunking: just the object content if it's a literal text
+    // TODO: Split long text using a better tokenizer if needed.
+    return [stmt.object];
+  }
+  // For NamedNodes/BlankNodes, use a simple triple representation
+  return [`${stmt.subject} ${stmt.predicate} ${stmt.object}`];
+}
+
+export async function insertChunksForStatement(
+  db: ReturnType<typeof createClient>,
+  statementId: number,
+  stmt: RDFStatement,
+) {
+  const chunks = chunkStatement(stmt);
+  for (const content of chunks) {
+    // Generate zero-vector placeholder embedding
+    // In a real app, you'd call an embedding API here.
+    const embedding = new Array(512).fill(0);
+    await insertChunk(db, statementId, content, embedding);
+  }
+}
+
 export async function createChunksTable(db: ReturnType<typeof createClient>) {
   await db.executeMultiple(chunksSql);
 }

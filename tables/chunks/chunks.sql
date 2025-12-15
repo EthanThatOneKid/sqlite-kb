@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS kb_chunks (
   statement_id INTEGER,
   content TEXT,
   embedding FLOAT32(512),
-  FOREIGN KEY(statement_id) REFERENCES kb_statements(id)
+  FOREIGN KEY(statement_id) REFERENCES kb_statements(id) ON DELETE CASCADE
 );
 
 -- 2. Create a vector index on the embedding column
